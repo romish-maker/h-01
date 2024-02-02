@@ -1,0 +1,169 @@
+import express, { Request, Response } from 'express'
+import {HTTP_STATUSES, RESOLUTIONS_ENUM} from "./enums";
+import {ErrorsMessagesType, RequestWithBody, RequestWithParams, RequestWithParamsAndBody, VideoType} from "./types";
+import {CreateVideosModel} from "./models/CreateVideosModel";
+import {URIParamsVideoIdModel} from "./models/URIParamsVideoIdModel";
+import {VideoViewModel} from "./models/VideoViewModel";
+import {UpdateVideosModel} from "./models/UpdateVideosModel";
+
+
+const app = express()
+const port = 3003
+
+const jsonMiddleware = express.json()
+
+app.use(jsonMiddleware);
+
+
+const getVideosViewModel = (video: VideoType): VideoType => {
+    return {
+        id: video.id,
+        title: video.title,
+        author: video.author,
+        canBeDownloaded: video.canBeDownloaded,
+        minAgeRestriction: video.minAgeRestriction,
+        createdAt: video.createdAt,
+        publicationDate: video.publicationDate,
+        availableResolutions: video.availableResolutions,
+    }
+}
+const db: { videos: VideoType[] } = {
+    videos: [
+        {
+            id: 2,
+            title: "romish-title",
+            author: "romish-author",
+            canBeDownloaded: true,
+            minAgeRestriction: null,
+            createdAt: new Date().toISOString(),
+            publicationDate: new Date().toISOString(),
+            availableResolutions: [
+                RESOLUTIONS_ENUM.P144
+            ]
+        },
+        {
+            id: 3,
+            title: "romish-title3",
+            author: "romish-author3",
+            canBeDownloaded: true,
+            minAgeRestriction: null,
+            createdAt: new Date().toISOString(),
+            publicationDate: new Date().toISOString(),
+            availableResolutions: [
+                RESOLUTIONS_ENUM.P144
+            ]
+        }
+    ]
+}
+app.get('/', (req: Request, res: Response) => {
+    res.send('Hello World!23e23')
+})
+
+
+app.get('/hometask_01/api/videos', (req: Request, res: Response<VideoViewModel[]>) => {
+    res.json(db.videos)
+        .sendStatus(HTTP_STATUSES.OK_200)
+})
+
+app.post('/hometask_01/api/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | ErrorsMessagesType[]>) => {
+    const reqBody = ['title', 'author', 'availableResolutions'];
+    const errorsMessages: ErrorsMessagesType[] = [];
+
+    reqBody.forEach(key => {
+        if (req.body[key] === undefined || req.body[key] === null || req.body[key] === "") {
+            errorsMessages.push({
+                field: key,
+                message: 'This field is required.'
+            });
+        }
+    });
+
+    if (errorsMessages.length > 0) {
+        res.status(HTTP_STATUSES.BAD_REQUEST_400)
+            .json(errorsMessages);
+    }
+
+    const newVideo = {
+        id: +new Date(),
+        title: req.body.title,
+        author: req.body.author,
+        availableResolutions: req.body.availableResolutions,
+        canBeDownloaded: true,
+        minAgeRestriction: null,
+        createdAt: new Date().toISOString(),
+        publicationDate: new Date().toISOString(),
+    }
+
+    db.videos.push(newVideo)
+
+    res.status(HTTP_STATUSES.CREATED_201)
+        .json(getVideosViewModel(newVideo))
+})
+
+app.get('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response<VideoViewModel>) => {
+    const foundVideo = db.videos.find(video => video.id === req.params.id)
+
+    if (!foundVideo) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
+
+    res.json(getVideosViewModel(foundVideo))
+        .sendStatus(HTTP_STATUSES.OK_200)
+})
+
+app.delete('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response) => {
+    const foundVideo = db.videos.find(video => video.id === req.params.id);
+
+    if (!foundVideo) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
+
+    db.videos = db.videos.filter(video => video.id !== +req.params.id)
+
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+})
+
+app.put('/hometask_01/api/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, UpdateVideosModel>, res: Response<ErrorsMessagesType[]>) => {
+    const reqBody: (keyof UpdateVideosModel)[] = ['title', 'author', 'availableResolutions', 'canBeDownloaded', 'minAgeRestriction', 'publicationDate'];
+    const errorsMessages: ErrorsMessagesType[] = [];
+
+    reqBody.forEach((key) => {
+        if (req.body[key] === undefined || req.body[key] === null || req.body[key] === "") {
+            errorsMessages.push({
+                field: key,
+                message: 'This field is required.'
+            });
+        }
+    });
+
+    if (errorsMessages.length > 0) {
+        res.status(HTTP_STATUSES.BAD_REQUEST_400)
+            .json(errorsMessages);
+    }
+
+    const foundVideo = db.videos.find(video => video.id === +req.params.id)
+
+    if (foundVideo) {
+        foundVideo.title = req.body.title;
+        foundVideo.author = req.body.author;
+        foundVideo.availableResolutions = req.body.availableResolutions;
+        foundVideo.canBeDownloaded = req.body.canBeDownloaded;
+        foundVideo.minAgeRestriction = req.body.minAgeRestriction;
+        foundVideo.publicationDate = req.body.publicationDate;
+    }
+
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+})
+
+// MOCK: FOR TESTS
+app.delete('/hometask_01/api/testing/all-data', (req: Request, res: Response) => {
+    db.videos = [];
+
+    res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
