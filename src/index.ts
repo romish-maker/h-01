@@ -30,10 +30,10 @@ const getVideosViewModel = (video: VideoType): VideoType => {
 const db: { videos: VideoType[] } = {
     videos: [
         {
-            id: 2,
+            id: +new Date(),
             title: "romish-title",
             author: "romish-author",
-            canBeDownloaded: true,
+            canBeDownloaded: false,
             minAgeRestriction: null,
             createdAt: new Date().toISOString(),
             publicationDate: new Date().toISOString(),
@@ -42,10 +42,10 @@ const db: { videos: VideoType[] } = {
             ]
         },
         {
-            id: 3,
+            id: +new Date(),
             title: "romish-title3",
             author: "romish-author3",
-            canBeDownloaded: true,
+            canBeDownloaded: false,
             minAgeRestriction: null,
             createdAt: new Date().toISOString(),
             publicationDate: new Date().toISOString(),
