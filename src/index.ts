@@ -60,12 +60,12 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 
-app.get('/hometask_01/api/videos', (req: Request, res: Response<VideoViewModel[]>) => {
+app.get('/videos', (req: Request, res: Response<VideoViewModel[]>) => {
     res.json(db.videos)
         .sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.post('/hometask_01/api/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | ErrorsMessagesType[]>) => {
+app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | ErrorsMessagesType[]>) => {
     const reqBody = ['title', 'author', 'availableResolutions'];
     const errorsMessages: ErrorsMessagesType[] = [];
 
@@ -100,7 +100,7 @@ app.post('/hometask_01/api/videos', (req: Request<RequestWithBody<CreateVideosMo
         .json(getVideosViewModel(newVideo))
 })
 
-app.get('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response<VideoViewModel>) => {
+app.get('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response<VideoViewModel>) => {
     const foundVideo = db.videos.find(video => video.id === req.params.id)
 
     if (!foundVideo) {
@@ -112,7 +112,7 @@ app.get('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideoIdM
         .sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.delete('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response) => {
+app.delete('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response) => {
     const foundVideo = db.videos.find(video => video.id === req.params.id);
 
     if (!foundVideo) {
@@ -125,7 +125,7 @@ app.delete('/hometask_01/api/videos/:id', (req: RequestWithParams<URIParamsVideo
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
 })
 
-app.put('/hometask_01/api/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, UpdateVideosModel>, res: Response<ErrorsMessagesType[]>) => {
+app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, UpdateVideosModel>, res: Response<ErrorsMessagesType[]>) => {
     const reqBody: (keyof UpdateVideosModel)[] = ['title', 'author', 'availableResolutions', 'canBeDownloaded', 'minAgeRestriction', 'publicationDate'];
     const errorsMessages: ErrorsMessagesType[] = [];
 
@@ -158,7 +158,7 @@ app.put('/hometask_01/api/videos/:id', (req: RequestWithParamsAndBody<URIParamsV
 })
 
 // MOCK: FOR TESTS
-app.delete('/hometask_01/api/testing/all-data', (req: Request, res: Response) => {
+app.delete('/testing/all-data', (req: Request, res: Response) => {
     db.videos = [];
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
