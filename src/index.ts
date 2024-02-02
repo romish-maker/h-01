@@ -30,29 +30,17 @@ const getVideosViewModel = (video: VideoType): VideoType => {
 const db: { videos: VideoType[] } = {
     videos: [
         {
-            id: +new Date(),
-            title: "romish-title",
             author: "romish-author",
-            canBeDownloaded: false,
-            minAgeRestriction: null,
-            createdAt: new Date().toISOString(),
-            publicationDate: new Date().toISOString(),
             availableResolutions: [
                 RESOLUTIONS_ENUM.P144
-            ]
-        },
-        {
+            ],
+            canBeDownloaded: false,
+            createdAt: new Date().toISOString(),
             id: +new Date(),
-            title: "romish-title3",
-            author: "romish-author3",
-            canBeDownloaded: false,
             minAgeRestriction: null,
-            createdAt: new Date().toISOString(),
             publicationDate: new Date().toISOString(),
-            availableResolutions: [
-                RESOLUTIONS_ENUM.P144
-            ]
-        }
+            title: "romish-title",
+        },
     ]
 }
 app.get('/', (req: Request, res: Response) => {
@@ -65,7 +53,7 @@ app.get('/videos', (req: Request, res: Response<VideoViewModel[]>) => {
         .sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | ErrorsMessagesType[]>) => {
+app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | any>) => {
     const reqBody = ['title', 'author', 'availableResolutions'];
     const errorsMessages: ErrorsMessagesType[] = [];
 
@@ -80,7 +68,7 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
 
     if (errorsMessages.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
-            .json(errorsMessages);
+            .json({errorsMessages: errorsMessages});
     }
 
     const newVideo = {
@@ -125,7 +113,7 @@ app.delete('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: R
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
 })
 
-app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, UpdateVideosModel>, res: Response<ErrorsMessagesType[]>) => {
+app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, UpdateVideosModel>, res: Response) => {
     const reqBody: (keyof UpdateVideosModel)[] = ['title', 'author', 'availableResolutions', 'canBeDownloaded', 'minAgeRestriction', 'publicationDate'];
     const errorsMessages: ErrorsMessagesType[] = [];
 
@@ -140,7 +128,7 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
 
     if (errorsMessages.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
-            .json(errorsMessages);
+            .json({errorsMessages: errorsMessages});
     }
 
     const foundVideo = db.videos.find(video => video.id === +req.params.id)
