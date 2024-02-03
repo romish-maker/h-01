@@ -97,8 +97,6 @@ app.post('/videos', (req: RequestWithBody<CreateVideosModel>, res: Response<Vide
         });
     }
 
-
-
     if (errorsMessages.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
             .json({errorsMessages: errorsMessages});
@@ -190,6 +188,13 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         errorsMessages.push({
             field: 'author',
             message: 'author length should not be more than 20 characters'
+        });
+    }
+
+    if (req.body.minAgeRestriction && req.body.minAgeRestriction > 18) {
+        errorsMessages.push({
+            field: 'minAgeRestriction',
+            message: 'minAgeRestriction cannot be upper than 18'
         });
     }
 
