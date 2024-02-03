@@ -78,6 +78,13 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
         });
     }
 
+    if (req.body.author?.length > 20) {
+        errorsMessages.push({
+            field: 'author',
+            message: 'author length should not be more than 20 characters'
+        });
+    }
+
     if (errorsMessages.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
             .json({errorsMessages: errorsMessages});
@@ -142,6 +149,13 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         errorsMessages.push({
             field: 'title',
             message: 'title length should not be more than 40 characters'
+        });
+    }
+
+    if (req.body.author?.length > 20) {
+        errorsMessages.push({
+            field: 'author',
+            message: 'author length should not be more than 20 characters'
         });
     }
 
