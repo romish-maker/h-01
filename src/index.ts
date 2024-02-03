@@ -5,6 +5,7 @@ import {CreateVideosModel} from "./models/CreateVideosModel";
 import {URIParamsVideoIdModel} from "./models/URIParamsVideoIdModel";
 import {VideoViewModel} from "./models/VideoViewModel";
 import {UpdateVideosModel} from "./models/UpdateVideosModel";
+import {addDays} from "date-fns";
 
 
 export const app = express()
@@ -26,22 +27,26 @@ const db: { videos: VideoType[] } = {
             createdAt: new Date().toISOString(),
             id: +new Date(),
             minAgeRestriction: null,
-            publicationDate: new Date().toISOString(),
+            publicationDate: addDays(new Date(), 1).toISOString(),
             title: "romish-title",
         },
     ]
 }
-const getVideosViewModel = (video: VideoType): VideoType => {
-    return {
-        id: video.id,
-        title: video.title,
-        author: video.author,
-        canBeDownloaded: video.canBeDownloaded,
-        minAgeRestriction: video.minAgeRestriction,
-        createdAt: video.createdAt,
-        publicationDate: video.publicationDate,
-        availableResolutions: video.availableResolutions,
+const getVideosViewModel = (video: VideoType | undefined): VideoType | undefined => {
+    if (video) {
+        return {
+            author: video.author,
+            availableResolutions: video.availableResolutions,
+            canBeDownloaded: video.canBeDownloaded,
+            createdAt: video.createdAt,
+            id: video.id,
+            minAgeRestriction: video.minAgeRestriction,
+            publicationDate: video.publicationDate,
+            title: video.title,
+        }
     }
+
+    return undefined
 }
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!23e23')
@@ -74,11 +79,11 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
     const newVideo = {
         author: req.body.author,
         availableResolutions: req.body.availableResolutions,
-        canBeDownloaded: true,
+        canBeDownloaded: false,
         createdAt: new Date().toISOString(),
         id: +new Date(),
         minAgeRestriction: null,
-        publicationDate: new Date().toISOString(),
+        publicationDate: addDays(new Date(), 1).toISOString(),
         title: req.body.title,
     }
 
