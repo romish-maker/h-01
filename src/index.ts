@@ -94,7 +94,7 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
 })
 
 app.get('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response<VideoViewModel>) => {
-    const foundVideo = db.videos.find(video => video.id === req.params.id)
+    const foundVideo = db.videos.find(video => video.id === +req.params.id)
 
     if (!foundVideo) {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
@@ -106,7 +106,7 @@ app.get('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Resp
 })
 
 app.delete('/videos/:id', (req: RequestWithParams<URIParamsVideoIdModel>, res: Response) => {
-    const foundVideo = db.videos.find(video => video.id === req.params.id);
+    const foundVideo = db.videos.find(video => video.id === +req.params.id);
 
     if (!foundVideo) {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
