@@ -7,7 +7,7 @@ import {VideoViewModel} from "./models/VideoViewModel";
 import {UpdateVideosModel} from "./models/UpdateVideosModel";
 
 
-const app = express()
+export const app = express()
 const port = 3003
 
 const jsonMiddleware = express.json()
@@ -15,18 +15,6 @@ const jsonMiddleware = express.json()
 app.use(jsonMiddleware);
 
 
-const getVideosViewModel = (video: VideoType): VideoType => {
-    return {
-        id: video.id,
-        title: video.title,
-        author: video.author,
-        canBeDownloaded: video.canBeDownloaded,
-        minAgeRestriction: video.minAgeRestriction,
-        createdAt: video.createdAt,
-        publicationDate: video.publicationDate,
-        availableResolutions: video.availableResolutions,
-    }
-}
 const db: { videos: VideoType[] } = {
     videos: [
         {
@@ -42,6 +30,18 @@ const db: { videos: VideoType[] } = {
             title: "romish-title",
         },
     ]
+}
+const getVideosViewModel = (video: VideoType): VideoType => {
+    return {
+        id: video.id,
+        title: video.title,
+        author: video.author,
+        canBeDownloaded: video.canBeDownloaded,
+        minAgeRestriction: video.minAgeRestriction,
+        createdAt: video.createdAt,
+        publicationDate: video.publicationDate,
+        availableResolutions: video.availableResolutions,
+    }
 }
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!23e23')
@@ -140,14 +140,17 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
 
     const foundVideo = db.videos.find(video => video.id === +req.params.id)
 
-    if (foundVideo) {
-        foundVideo.title = req.body.title;
-        foundVideo.author = req.body.author;
-        foundVideo.availableResolutions = req.body.availableResolutions;
-        foundVideo.canBeDownloaded = req.body.canBeDownloaded;
-        foundVideo.minAgeRestriction = req.body.minAgeRestriction;
-        foundVideo.publicationDate = req.body.publicationDate;
+    if (!foundVideo) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
     }
+
+    foundVideo.title = req.body.title;
+    foundVideo.author = req.body.author;
+    foundVideo.availableResolutions = req.body.availableResolutions;
+    foundVideo.canBeDownloaded = req.body.canBeDownloaded;
+    foundVideo.minAgeRestriction = req.body.minAgeRestriction;
+    foundVideo.publicationDate = req.body.publicationDate;
 
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
 })
