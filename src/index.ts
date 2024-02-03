@@ -58,8 +58,8 @@ app.get('/videos', (req: Request, res: Response<VideoViewModel[]>) => {
         .sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Response<VideoType | any>) => {
-    const reqBody = ['title', 'author', 'availableResolutions'];
+app.post('/videos', (req: RequestWithBody<CreateVideosModel>, res: Response<VideoType | any>) => {
+    const reqBody: (keyof CreateVideosModel)[] = ['title', 'author', 'availableResolutions'];
     const errorsMessages: ErrorsMessagesType[] = [];
 
     reqBody.forEach(key => {
@@ -70,6 +70,18 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
             });
         }
     });
+
+
+    const validResolutions = Object.values(RESOLUTIONS_ENUM);
+
+    const areValidResolutions = req.body.availableResolutions.every(resolution => validResolutions.includes(resolution));
+
+    if (!areValidResolutions) {
+        errorsMessages.push({
+            field: 'availableResolutions',
+            message: 'Invalid resolution value(s).'
+        });
+    }
 
     if (req.body.title?.length > 40) {
         errorsMessages.push({
@@ -85,9 +97,13 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
         });
     }
 
+
+
     if (errorsMessages.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
             .json({errorsMessages: errorsMessages});
+
+        return
     }
 
     const newVideo = {
@@ -145,6 +161,24 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         }
     });
 
+    const validResolutions = Object.values(RESOLUTIONS_ENUM);
+
+    const areValidResolutions = req.body.availableResolutions.every(resolution => validResolutions.includes(resolution));
+
+    if (!areValidResolutions) {
+        errorsMessages.push({
+            field: 'availableResolutions',
+            message: 'Invalid resolution value(s).'
+        });
+    }
+
+    if (typeof req.body.canBeDownloaded !== 'boolean') {
+        errorsMessages.push({
+            field: 'canBeDownloaded',
+            message: 'canBeDownloaded should be boolean type'
+        });
+    }
+
     if (req.body.title?.length > 40) {
         errorsMessages.push({
             field: 'title',
@@ -159,9 +193,12 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         });
     }
 
+
     if (errorsMessages?.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
             .json({errorsMessages: errorsMessages});
+
+        return;
     }
 
     const foundVideo = db.videos.find(video => video.id === +req.params.id)
