@@ -198,6 +198,12 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         });
     }
 
+    if (typeof req.body.publicationDate !== 'string') {
+        errorsMessages.push({
+            field: 'publicationDate',
+            message: 'publicationDate is not correct format'
+        });
+    }
 
     if (errorsMessages?.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
