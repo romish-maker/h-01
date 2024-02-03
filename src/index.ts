@@ -71,7 +71,7 @@ app.post('/videos', (req: Request<RequestWithBody<CreateVideosModel>>, res: Resp
         }
     });
 
-    if (req.body.title.length > 40) {
+    if (req.body.title?.length > 40) {
         errorsMessages.push({
             field: 'title',
             message: 'title length should not be more than 40 characters'
@@ -130,7 +130,7 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
     const errorsMessages: ErrorsMessagesType[] = [];
 
     reqBody.forEach((key) => {
-        if (req.body[key] === undefined || req.body[key] === "") {
+        if (req.body[key] === undefined || req.body[key] === null || req.body[key] === "") {
             errorsMessages.push({
                 field: key,
                 message: 'This field is required.'
@@ -138,14 +138,14 @@ app.put('/videos/:id', (req: RequestWithParamsAndBody<URIParamsVideoIdModel, Upd
         }
     });
 
-    if (req.body.title.length > 40) {
+    if (req.body.title?.length > 40) {
         errorsMessages.push({
             field: 'title',
             message: 'title length should not be more than 40 characters'
         });
     }
 
-    if (errorsMessages.length > 0) {
+    if (errorsMessages?.length > 0) {
         res.status(HTTP_STATUSES.BAD_REQUEST_400)
             .json({errorsMessages: errorsMessages});
     }
